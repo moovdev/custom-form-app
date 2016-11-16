@@ -1,17 +1,18 @@
+from django.core.exceptions import ValidationError
+
 from .models import ExtraInfo
-from django.forms import ModelForm
+from django.forms import ModelForm, forms
+
 
 class ExtraInfoForm(ModelForm):
-    """
-    The fields on this form are derived from the ExtraInfo model in models.py.
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtraInfoForm, self).__init__(*args, **kwargs)
-        self.fields['favorite_movie'].error_messages = {
-            "required": u"Please tell us your favorite movie.",
-            "invalid": u"We're pretty sure you made that movie up.",
-        }
+    def clean(self):
+        cell_number = self.cleaned_data.get('cell_number', None)
+        number = str(cell_number)
+        if not len(number) == 10 or not number.isdigit():
+            raise forms.ValidationError("Please enter a valid phone number")
+        else:
+            return self.cleaned_data
 
-    class Meta(object):
+    class Meta:
         model = ExtraInfo
-        fields = ('favorite_editor', 'favorite_movie')
+        fields = ('user', 'cell_number', 'id_passport_number', 'center')
